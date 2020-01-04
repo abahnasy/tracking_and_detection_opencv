@@ -27,7 +27,7 @@ std::vector<std::vector<std::pair<int, cv::Mat>>> load_dataset_task2 (void) {
 		for (int iter_train = 0; iter_train < train_images_num.at(i); ++iter_train) {
 			// formulate the name of the image to be read
 			std::stringstream image_path;
-			image_path << "/home/abahnasy/eclipse-workspace/openCV2/data/task2/train" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << iter_train << ".jpg";
+			image_path << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task2/train" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << iter_train << ".jpg";
 			// convert it to string
 			std::string image_path_str = image_path.str();
 			std::pair<int, cv::Mat> temp_container;
@@ -39,7 +39,7 @@ std::vector<std::vector<std::pair<int, cv::Mat>>> load_dataset_task2 (void) {
 		for (int iter_test = 0; iter_test < test_images_num.at(i); ++iter_test) {
 			// formulate the name of the image to be read
 			std::stringstream image_path;
-			image_path << "/home/abahnasy/eclipse-workspace/openCV2/data/task2/test" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << train_images_num.at(i) + iter_test << ".jpg";
+			image_path << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task2/test" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << train_images_num.at(i) + iter_test << ".jpg";
 			// convert it to string
 			std::string image_path_str = image_path.str();
 			std::pair<int, cv::Mat> temp_container;
