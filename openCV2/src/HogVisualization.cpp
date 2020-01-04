@@ -1,46 +1,9 @@
+#include "HogVisualization.h"
 
-
-#include "HOGDescriptor.h"
-#include <iostream>
-
-void HOGDescriptor::initDetector() {
-    // Initialize hog detector
-    
-    //Fill code here
-
-    is_init = true;
-
-}
-
-void HOGDescriptor::detectHOGDescriptor(cv::Mat &im, std::vector<float> &feat, cv::Size sz, bool show) {
-    if (!is_init) {
-        initDetector();
-    }
-
-   // Fill code here
-
-   /* pad your image
-    * resize your image
-    * use the built in function "compute" to get the HOG descriptors
-    */
-}
-
-//returns instance of cv::HOGDescriptor
-cv::HOGDescriptor & HOGDescriptor::getHog_detector() {
-    // Fill code here
-}
-
-
-
-
-
-void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_detector, int scale_factor) {
-	/*
-	 * img - the image used for computing HOG descriptors. **Attention here the size of the image should be the same as the window size of your cv::HOGDescriptor instance **
-	 * feats - the hog descriptors you get after calling cv::HOGDescriptor::compute
-	 * hog_detector - the instance of cv::HOGDescriptor you used
-	 * scale_factor - scale the image *scale_factor* times larger for better visualization
-	 */
+void visualizeHOG(cv::Mat img,
+                  std::vector<float> &feats,
+                  cv::HOGDescriptor& hog_detector,
+                  int scale_factor) {
 
     cv::Mat visual_image;
     resize(img, visual_image, cv::Size(img.cols * scale_factor, img.rows * scale_factor));
@@ -80,7 +43,6 @@ void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_
     // compute gradient strengths per cell
     int descriptorDataIdx = 0;
 
-
     for (int block_x = 0; block_x < blocks_in_x_dir; block_x++) {
         for (int block_y = 0; block_y < blocks_in_y_dir; block_y++) {
             int cell_start_x = block_x * block_stride.width / cell_size.width;
@@ -114,7 +76,6 @@ void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_
         }
     }
 
-
     for (int celly = 0; celly < cells_in_y_dir; celly++) {
         for (int cellx = 0; cellx < cells_in_x_dir; cellx++) {
             int drawX = cellx * cell_size.width;
@@ -141,7 +102,7 @@ void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_
                 float dirVecX = cos(currRad);
                 float dirVecY = sin(currRad);
                 float maxVecLen = cell_size.width / 2;
-                float scale = scale_factor / 5.0; // just a visual_imagealization scale,
+                float scale = scale_factor / 2.5; // just a visual_imagealization scale,
 
                 // compute line coordinates
                 float x1 = mx - dirVecX * currentGradStrength * maxVecLen * scale;
@@ -155,12 +116,9 @@ void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_
                      cv::Point(x2 * scale_factor, y2 * scale_factor),
                      CV_RGB(0, 0, 255),
                      1);
-
             }
-
         }
     }
-
 
     for (int y = 0; y < cells_in_y_dir; y++) {
         for (int x = 0; x < cells_in_x_dir; x++) {
@@ -172,10 +130,6 @@ void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_
     delete[] gradientStrengths;
     delete[] cellUpdateCounter;
     cv::imshow("HOG vis", visual_image);
-    cv::waitKey(-1);
-    cv::imwrite("hog_vis.jpg", visual_image);
-
+    cv::waitKey(1000);
+    // cv::imwrite("hog_vis.jpg", visual_image);
 }
-
-
-

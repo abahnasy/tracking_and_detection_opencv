@@ -11,9 +11,9 @@ using namespace std;
 template<class ClassifierType>
 void performanceEval(cv::Ptr<ClassifierType> classifier, cv::Ptr<cv::ml::TrainData> data) {
 
-	/* 
+	/*
 
-		Fill Code 	
+		Fill Code
 
 	*/
 
@@ -27,9 +27,9 @@ void testDTrees() {
 
     int num_classes = 6;
 
-    /* 
+    /*
       * Create your data (i.e Use HOG from task 1 to compute the descriptor for your images)
-      * Train a single Decision Tree and evaluate the performance 
+      * Train a single Decision Tree and evaluate the performance
       * Experiment with the MaxDepth parameter, to see how it affects the performance
 
     */
@@ -44,10 +44,10 @@ void testForest(){
 
     int num_classes = 6;
 
-    /* 
-      * 
+    /*
+      *
       * Create your data (i.e Use HOG from task 1 to compute the descriptor for your images)
-      * Train a Forest and evaluate the performance 
+      * Train a Forest and evaluate the performance
       * Experiment with the MaxDepth & TreeCount parameters, to see how it affects the performance
 
     */

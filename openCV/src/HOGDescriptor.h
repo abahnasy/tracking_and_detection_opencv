@@ -8,68 +8,67 @@
 #include <vector>
 
 class HOGDescriptor {
+	private:
+		cv::Size win_size;
 
-public:
+		/*
+			Fill other parameters here
+		*/
 
-    HOGDescriptor() {
-        //initialize default parameters(win_size, block_size, block_step,....)
-        win_size = cv::Size(64, 64);
+		cv::HOGDescriptor hog_detector;
 
-        //Fill other parameters here
-        
-        // parameter to check if descriptor is already initialized or not
-        is_init = false;
-    };
+		bool is_init;
 
+	public:
 
-    void setWinSize() {
-        //Fill
-        
-    }
+		HOGDescriptor() {
+			//initialize default parameters(win_size, block_size, block_step,....)
+			win_size = cv::Size(64, 64);
 
-    cv::Size getWinSize(){
-        //Fill
-    }
+			//Fill other parameters here
 
-    void setBlockSize() {
-        //Fill
-    }
-
-    void setBlockStep() {
-       //Fill
-    }
-
-    void setCellSize() {
-      //Fill
-    }
-
-    void setPadSize(cv::Size sz) {
-        pad_size = sz;
-    }
+			// parameter to check if descriptor is already initialized or not
+			is_init = false;
+		};
 
 
-    void initDetector();
+		void setWinSize() {
+			//Fill
 
-    void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_detector, int scale_factor);
+		}
 
-    void detectHOGDescriptor(cv::Mat &im, std::vector<float> &feat, cv::Size sz, bool show);
+		cv::Size getWinSize(){
+			//Fill
+		}
 
-    ~HOGDescriptor() {};
+		void setBlockSize() {
+			//Fill
+		}
+
+		void setBlockStep() {
+		   //Fill
+		}
+
+		void setCellSize() {
+		  //Fill
+		}
+
+		void setPadSize(cv::Size sz) {
+			pad_size = sz;
+		}
+
+		cv::HOGDescriptor & getHog_detector();
+
+		void initDetector();
+
+		void visualizeHOG(cv::Mat img, std::vector<float> &feats, cv::HOGDescriptor hog_detector, int scale_factor = 3);
+
+		void detectHOGDescriptor(cv::Mat &im, std::vector<float> &feat, cv::Size sz, bool show);
+
+		~HOGDescriptor() {};
 
 
-private:
-    cv::Size win_size;
 
-    /*
-        Fill other parameters here
-    */
-
-    cv::HOGDescriptor hog_detector;
-public:
-    cv::HOGDescriptor & getHog_detector();
-
-private:
-    bool is_init;
 };
 
 #endif //RF_HOGDESCRIPTOR_H
