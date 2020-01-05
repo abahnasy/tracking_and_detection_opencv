@@ -151,7 +151,7 @@ void testForest(){
 	vector<pair<int, cv::Mat>> trainingImagesLabelVector = dataset.at(0);
 
 	//create random forest
-	int treeCount = 40;
+	int treeCount = 120;
 	int maxDepth = 20;
 	int CVFolds = 1; // Not implemented Error, set to 1
 	int minSampleCount = 2;

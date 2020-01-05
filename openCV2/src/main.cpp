@@ -13,13 +13,13 @@ void testForest();
 int main()
 {
     // // Task 1
-     //task1();
-     //cv::waitKey(2000);
-     //cv::destroyAllWindows();
+     task1();
+     cv::waitKey(20000);
+     cv::destroyAllWindows();
 
      // Task 2
      //testDTrees();
-     testForest();
+     //testForest();
 
 
 

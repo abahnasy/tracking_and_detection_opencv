@@ -54,13 +54,21 @@ cv::Mat resizeToBoundingBox(cv::Mat &inputImage, Size &winSize)
 
     Rect r = Rect((resizedInputImage.cols - winSize.width) / 2, (resizedInputImage.rows - winSize.height) / 2,
                   winSize.width, winSize.height);
+
+    // Debugging Code
+    cv::Mat resizedInputImageOverlayed;
+    resizedInputImage.copyTo(resizedInputImageOverlayed);
+    cv::rectangle(resizedInputImageOverlayed, r, cv::Scalar(0, 255, 0));
+    cv::putText(resizedInputImageOverlayed, "Resized",cv::Point(0,20) ,FONT_HERSHEY_SIMPLEX, 1, Scalar(0,200,200), 2);
+    imshow("The selected region from resized image", resizedInputImageOverlayed);
+
     return resizedInputImage(r);
 }
 
 void task1()
 {
     // Read image and display
-    string imagePath = "/home/abahnasy/eclipse-workspace/openCV2/data/task1/obj1000.jpg";
+    string imagePath = "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task1/obj1000.jpg";
     cout << imagePath << endl;
     Mat inputImage = imread(imagePath, cv::IMREAD_UNCHANGED);
     imshow("task1 - Input Image", inputImage);
@@ -69,6 +77,8 @@ void task1()
     // Resize image if very small while maintaining aspect ratio till its bigger than winSize
     Size winSize(128, 128);
     cv::Mat resizedInputImage = resizeToBoundingBox(inputImage, winSize);
+    //imshow("task1 - Input Image after resizing", resizedInputImage);
+    cv::waitKey(200);
 
     HOGDescriptor hog = createHogDescriptor(winSize);
 
