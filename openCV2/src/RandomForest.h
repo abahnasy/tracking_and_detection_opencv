@@ -8,6 +8,8 @@
 #include <vector>
 #include <random> // For std::mt19937, std::random_device
 
+#include "DataContainers.h" // Prediction data type for Random Forest which provides predicted label, bounding box and prediction confidence.
+
 class RandomForest
 {
 public:
@@ -23,20 +25,15 @@ public:
     void setCVFolds(int cvFols);
     void setMinSampleCount(int minSampleCount);
     void setMaxCategories(int maxCategories);
-	
-
     void train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector,float subsetPercentage);
-
-    int predict(cv::Mat &testImage);
-
-
+    DetectedObject predict(cv::Mat &testImage);
 private:
 	int mTreeCount;
 	int mMaxDepth;
 	int mCVFolds;
 	int mMinSampleCount;
 	int mMaxCategories;
-    // M-Trees for constructing thr forest
+    // M-Trees for constructing the forest
     std::vector<cv::Ptr<cv::ml::DTrees> > mTrees;
 
     std::mt19937 m_randomGenerator;

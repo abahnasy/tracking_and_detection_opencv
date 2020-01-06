@@ -164,15 +164,15 @@ void testForest(){
 
 	vector<pair<int, cv::Mat>> testImagesLabelVector = dataset.at(1);
     float accuracy = 0;
-    float accuracyPerClass[6] = {0};
+    float accuracyPerClass[maxCategories] = {0};
     for (uint8_t i = 0; i < testImagesLabelVector.size(); ++i)
     {
         cv::Mat testImage = testImagesLabelVector.at(i).second;
-        int predicted_label = rf->predict(testImage);
-        if (testImagesLabelVector.at(i).first == predicted_label)
+        DetectedObject prediction = rf->predict(testImage);
+        if (testImagesLabelVector.at(i).first == prediction.label)
         {
             accuracy += 1;
-            accuracyPerClass[predicted_label] += 1;
+            accuracyPerClass[prediction.label] += 1;
         }
     }
 

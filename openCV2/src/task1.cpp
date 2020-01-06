@@ -56,11 +56,11 @@ cv::Mat resizeToBoundingBox(cv::Mat &inputImage, Size &winSize)
                   winSize.width, winSize.height);
 
     // Debugging Code
-    cv::Mat resizedInputImageOverlayed;
-    resizedInputImage.copyTo(resizedInputImageOverlayed);
-    cv::rectangle(resizedInputImageOverlayed, r, cv::Scalar(0, 255, 0));
-    cv::putText(resizedInputImageOverlayed, "Resized",cv::Point(0,20) ,FONT_HERSHEY_SIMPLEX, 1, Scalar(0,200,200), 2);
-    imshow("The selected region from resized image", resizedInputImageOverlayed);
+//    cv::Mat resizedInputImageOverlayed;
+//    resizedInputImage.copyTo(resizedInputImageOverlayed);
+//    cv::rectangle(resizedInputImageOverlayed, r, cv::Scalar(0, 255, 0));
+//    cv::putText(resizedInputImageOverlayed, "Resized",cv::Point(0,20) ,FONT_HERSHEY_SIMPLEX, 1, Scalar(0,200,200), 2);
+//    imshow("The selected region from resized image", resizedInputImageOverlayed);
 
     return resizedInputImage(r);
 }

@@ -147,12 +147,12 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
     }
 }
 
-int RandomForest::predict(cv::Mat &testImage)
+DetectedObject RandomForest::predict(cv::Mat &testImage)
 {
 	cv::Mat resizedInputImage = resizeToBoundingBox(testImage, this->winSize_);
     std::vector<float> descriptors;
     hog_detector_.compute(resizedInputImage, descriptors, winStride_, padding_);
-    int labels[6] = {0};
+    int labels[this->mMaxCategories] = {0};
     int maxLabelRecord = -1;
     int maxLabel = -1;
     for(auto &&tree : mTrees) {
@@ -165,7 +165,9 @@ int RandomForest::predict(cv::Mat &testImage)
 
     	}
     }
-    return maxLabel;
+    DetectedObject prediction;
+    prediction.label = maxLabel;
+    return prediction;
 
 }
 
