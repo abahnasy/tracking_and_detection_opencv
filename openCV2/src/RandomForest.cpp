@@ -157,7 +157,7 @@ DetectedObject RandomForest::predict(cv::Mat &testImage)
     int maxLabel = -1;
     for(auto &&tree : mTrees) {
     	int label = tree->predict(cv::Mat(descriptors));
-    	std::cout<< "Individual tree prediction: " << label << "\n";
+//    	std::cout<< "Individual tree prediction: " << label << "\n";
     	labels[label]++;
     	if(labels[label] > maxLabelRecord) {
     		maxLabelRecord = labels[label];
@@ -167,6 +167,7 @@ DetectedObject RandomForest::predict(cv::Mat &testImage)
     }
     DetectedObject prediction;
     prediction.label = maxLabel;
+    prediction.confidence = ((labels[maxLabel] * 1.0f) / this->mTreeCount);
     return prediction;
 
 }

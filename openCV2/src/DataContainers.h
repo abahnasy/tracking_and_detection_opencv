@@ -15,7 +15,7 @@ struct DetectedObject
 {
   int label;
   float confidence;
-  cv::Rect bbox;
+  cv::Rect bounding_box;
 };
 
 

@@ -10,16 +10,23 @@ void task1();
 void testDTrees();
 void testForest();
 
+// Task 3
+void task3();
+
 int main()
 {
     // // Task 1
-     task1();
+//     task1();
      //cv::waitKey(20000);
      //cv::destroyAllWindows();
 
      // Task 2
      //testDTrees();
-     testForest();
+//     testForest();
+
+// Task 3
+	task3();
+    cv::destroyAllWindows();
 
 
 

@@ -24,9 +24,7 @@ template<class ClassifierType>
 void performanceEval(cv::Ptr<ClassifierType> classifier, cv::Ptr<cv::ml::TrainData> data) {
 
 	/*
-
 		Fill Code
-
 	*/
 
 };
@@ -110,7 +108,7 @@ void testDTrees() {
 		cv::waitKey(200);
 		cv::Mat resizedInputImage = resizeToBoundingBox(inputImage, winSize);
 
-		// Compute Hog only of center crop of grayscale image
+		// Compute Hog only of center crop of gray scale image
 		std::vector<float> descriptors;
 		std::vector<cv::Point> foundLocations;
 		vector<double> weights;
