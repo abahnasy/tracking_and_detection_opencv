@@ -7,6 +7,7 @@ CPP_SRCS += \
 ../src/HogVisualization.cpp \
 ../src/LoadDataset_Task2.cpp \
 ../src/LoadDataset_Task3.cpp \
+../src/NonMaxSUppresion.cpp \
 ../src/RandomForest.cpp \
 ../src/main.cpp \
 ../src/task1.cpp \
@@ -17,6 +18,7 @@ OBJS += \
 ./src/HogVisualization.o \
 ./src/LoadDataset_Task2.o \
 ./src/LoadDataset_Task3.o \
+./src/NonMaxSUppresion.o \
 ./src/RandomForest.o \
 ./src/main.o \
 ./src/task1.o \
@@ -27,6 +29,7 @@ CPP_DEPS += \
 ./src/HogVisualization.d \
 ./src/LoadDataset_Task2.d \
 ./src/LoadDataset_Task3.d \
+./src/NonMaxSUppresion.d \
 ./src/RandomForest.d \
 ./src/main.d \
 ./src/task1.d \

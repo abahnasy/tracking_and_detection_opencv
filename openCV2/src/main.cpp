@@ -7,6 +7,7 @@
 #include "ComputingLocation.h"
 
 
+
 // change the name of the macro definition to run the desired task
 #define TASK_3
 
@@ -54,7 +55,7 @@ int main() {
 	   exit(-1);
 	}
 	outputFile << "Precision,Recall"<< std::endl;
-	for (int confidence = 0; confidence <= 100; confidence += 5) // If float is used, it may overshoot 1.0 - floating point error
+	for (int confidence = 60; confidence <= 61; confidence += 5) // If float is used, it may overshoot 1.0 - floating point error
 	{
 	   std::cout << "Calculating with confidence threshold " << confidence << std::endl;
 	   float NMS_CONFIDENCE_THRESHOLD = confidence / 100.0f;

@@ -21,6 +21,7 @@
 #include <opencv2/core/utils/filesystem.hpp>
 #endif
 
+std::vector<DetectedObject> non_maximum_suppresion(cv::Mat, std::vector<DetectedObject>, float);
 
 #  define DEBUG(x) std::cout << x << std::endl
 
@@ -101,7 +102,7 @@ std::vector<float> task3(float confidence_threshold) {
 
 	float NMS_CONFIDENCE_THRESHOLD = confidence_threshold;
 	float NMS_MIN_IOU_THRESHOLD = 0.1f;
-	float NMS_MAX_IOU_THRESHOLD = 0.5f;
+	float NMS_MAX_IOU_THRESHOLD = 0.3f;
 
 	std::vector<std::vector<std::pair<int, cv::Mat>>> full_dataset;
 
@@ -124,7 +125,7 @@ std::vector<float> task3(float confidence_threshold) {
 	int CVFolds = 1; // Not implemented Error, set to 1
 	int minSampleCount = 2;
 	int maxCategories = 4;
-	bool data_augmentation = false;
+	bool data_augmentation = true;
 
 	float subsetPercentage = 80.0f;
 	RandomForest *rf = new RandomForest(treeCount,  maxDepth,  CVFolds,  minSampleCount,  maxCategories);
@@ -248,61 +249,66 @@ std::vector<float> task3(float confidence_threshold) {
 
 
 
-
-		// Run NMS over the vector of predicted bounding boxes
+/* ===================================================== ============================================== */
+//		// Run NMS over the vector of predicted bounding boxes
 		cv::Mat testImageNmsClone = test_image.clone();
 		std::vector<DetectedObject> predictions_per_image_NMS;
-		predictions_per_image_NMS.reserve(25);
+//		predictions_per_image_NMS.reserve(25);
 
-		// erase boxes with confidence below the threshold
-		std::cout << "Erase the predictions which have confidence below the threshold value for image: " << i << "\n";
-		std::cout <<"Total predictions before thresholding are " << predictions_per_image.size() << "\n";
-		std::vector<DetectedObject>::iterator iter;
-		for (iter = predictions_per_image.begin(); iter != predictions_per_image.end(); ) {
-			if (iter->confidence < NMS_CONFIDENCE_THRESHOLD)
-				iter = predictions_per_image.erase(iter);
-			else
-				++iter;
-		}
-		std::cout <<"Total predictions after thresholding are " << predictions_per_image.size() << "\n";
-		std::cout << "Calculating the IOU value for remaining vectors" << "\n";
-		for (auto &&prediction : predictions_per_image){
-			bool similar_prediction_flag = false;
-			for (auto &&predicion_NMS : predictions_per_image_NMS)
-			{
-				if (predicion_NMS.label == prediction.label)
-				{ // Only if same label
-					/* Extract  the bounding box to  compare */
-					cv::Rect &rect1 = prediction.bounding_box;
-					cv::Rect &rect2 = predicion_NMS.bounding_box;
-					float iouScore = ((rect1 & rect2).area() * 1.0f) / ((rect1 | rect2).area());
-					//std::cout << "iou score is "  << iouScore << "\n";
-					if (iouScore > NMS_MAX_IOU_THRESHOLD) // Merge the two bounding boxes
-					{
-						//std::cout <<"iou score passed the threshold check \n";
-						predicion_NMS.bounding_box = rect1 | rect2;
-						predicion_NMS.confidence = std::max(prediction.confidence, predicion_NMS.confidence);
-						similar_prediction_flag = true;
-						break;
-					}
-					 else if (iouScore > NMS_MIN_IOU_THRESHOLD) // ToDo: Improve this.
-					 {
-					     // Drop the bounding box with lower confidence
-					     if (predicion_NMS.confidence < prediction.confidence)
-					     {
-					    	 predicion_NMS = prediction;
-					     }
-					     similar_prediction_flag = true;
-					     break;
-					 } else {
-						 // similar but iou score is below minimum
-					 }
-				}
-			}
-			// If no NMS cluster found, add the prediction as a new cluster
-			if (!similar_prediction_flag)
-				predictions_per_image_NMS.push_back(prediction);
-		}
+		std::cout <<"========== The vector size befor nms: " << predictions_per_image.size() << "\n";
+		predictions_per_image_NMS = non_maximum_suppresion(testImageNmsClone,  predictions_per_image, NMS_MAX_IOU_THRESHOLD);
+		std::cout <<"========== The vector size after nms: " << predictions_per_image_NMS.size() << "\n";
+//
+//		// erase boxes with confidence below the threshold
+//		std::cout << "Erase the predictions which have confidence below the threshold value for image: " << i << "\n";
+//		std::cout <<"Total predictions before thresholding are " << predictions_per_image.size() << "\n";
+//		std::vector<DetectedObject>::iterator iter;
+//		for (iter = predictions_per_image.begin(); iter != predictions_per_image.end(); ) {
+//			if (iter->confidence < NMS_CONFIDENCE_THRESHOLD)
+//				iter = predictions_per_image.erase(iter);
+//			else
+//				++iter;
+//		}
+//		std::cout <<"Total predictions after thresholding are " << predictions_per_image.size() << "\n";
+//		std::cout << "Calculating the IOU value for remaining vectors" << "\n";
+//		for (auto &&prediction : predictions_per_image){
+//			bool similar_prediction_flag = false;
+//			for (auto &&predicion_NMS : predictions_per_image_NMS)
+//			{
+//				if (predicion_NMS.label == prediction.label)
+//				{ // Only if same label
+//					/* Extract  the bounding box to  compare */
+//					cv::Rect &rect1 = prediction.bounding_box;
+//					cv::Rect &rect2 = predicion_NMS.bounding_box;
+//					float iouScore = ((rect1 & rect2).area() * 1.0f) / ((rect1 | rect2).area());
+//					//std::cout << "iou score is "  << iouScore << "\n";
+//					if (iouScore > NMS_MAX_IOU_THRESHOLD) // Merge the two bounding boxes
+//					{
+//						//std::cout <<"iou score passed the threshold check \n";
+//						predicion_NMS.bounding_box = rect1 | rect2;
+//						predicion_NMS.confidence = std::max(prediction.confidence, predicion_NMS.confidence);
+//						similar_prediction_flag = true;
+//						break;
+//					}
+//					 else if (iouScore > NMS_MIN_IOU_THRESHOLD) // ToDo: Improve this.
+//					 {
+//					     // Drop the bounding box with lower confidence
+//					     if (predicion_NMS.confidence < prediction.confidence)
+//					     {
+//					    	 predicion_NMS = prediction;
+//					     }
+//					     similar_prediction_flag = true;
+//					     break;
+//					 } else {
+//						 // similar but iou score is below minimum
+//					 }
+//				}
+//			}
+//			// If no NMS cluster found, add the prediction as a new cluster
+//			if (!similar_prediction_flag)
+//				predictions_per_image_NMS.push_back(prediction);
+//		}
+/* ===================================================== ============================================== */
 		// Prediction file format: Next is N Lines of Labels and cv::Rect
 		for (auto &&predicion_NMS : predictions_per_image_NMS)
 			cv::rectangle(testImageNmsClone, predicion_NMS.bounding_box, bounding_box_colors[predicion_NMS.label]);

@@ -1,5 +1,5 @@
 #include "RandomForest.h"
-
+#  define DEBUG(x) std::cout << x << std::endl
 // external definitions
 cv::HOGDescriptor createHogDescriptor(cv::Size winSize);
 cv::Mat resizeToBoundingBox(cv::Mat &inputImage, cv::Size &winSize);
@@ -115,7 +115,7 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 
     	// generate Random subset of the main dataset
     	std::vector<std::pair<int, cv::Mat>> trainingImagesLabelSubsetVector =
-    	            generateTrainingImagesLabelSubsetVector(trainingImagesLabelVector,
+    	            generateTrainingImagesLabelSubsetVector(augmentedTrainingImagesLabelVector,
     	                                                    subsetPercentage);
     	// compute HoG descriptors for the subset dataset
 
@@ -217,7 +217,7 @@ std::vector<std::pair<int, cv::Mat>> RandomForest::generateTrainingImagesLabelSu
 	{
 		// Create a subset vector for all the samples with class label.
 		std::vector<std::pair<int, cv::Mat>> temp;
-		temp.reserve(2000);
+//		temp.reserve(2000);
 		for (auto &&sample : trainingImagesLabelVector)
 			if (sample.first == label)
 				temp.push_back(sample);
@@ -279,7 +279,7 @@ std::vector<cv::Mat> RandomForest::augmentImage(cv::Mat &inputImage)
             cv::flip(rotatedImage, flippedImage, i);
             augmentations.push_back(flippedImage);
             /* Scale with factor 1.2 5 times bigger and five times small */
-            std::cout << "Original Image size is " << flippedImage.size() << "\n";
+//            std::cout << "Original Image size is " << flippedImage.size() << "\n";
 			for(int s = 1; s < 5; ++s) {
 				cv::resize(flippedImage, scaled_image, cv::Size(0,0), 1 + (scale_factor_up*s),1 + (scale_factor_up*s), cv::INTER_LINEAR);
 //				std::cout << "Scaled Image size with scale factor " << scale_factor_up*s <<" is: " << scaled_image.size() << "\n";
