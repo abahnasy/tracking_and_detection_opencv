@@ -92,7 +92,7 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 //	cv::Size padding(0, 0);
 
     std::vector<std::pair<int, cv::Mat>> augmentedTrainingImagesLabelVector;
-    augmentedTrainingImagesLabelVector.reserve(trainingImagesLabelVector.size() * 8);
+    augmentedTrainingImagesLabelVector.reserve(trainingImagesLabelVector.size() * 32);
     if (data_augmentation)
     {
         for(auto&& trainingImagesLabelSample : trainingImagesLabelVector)
@@ -217,7 +217,7 @@ std::vector<std::pair<int, cv::Mat>> RandomForest::generateTrainingImagesLabelSu
 	{
 		// Create a subset vector for all the samples with class label.
 		std::vector<std::pair<int, cv::Mat>> temp;
-		temp.reserve(100);
+		temp.reserve(2000);
 		for (auto &&sample : trainingImagesLabelVector)
 			if (sample.first == label)
 				temp.push_back(sample);
@@ -260,8 +260,8 @@ std::vector<cv::Mat> RandomForest::augmentImage(cv::Mat &inputImage)
     std::vector<cv::Mat> augmentations;
     cv::Mat currentImage = inputImage;
     cv::Mat rotatedImage, flippedImage, scaled_image;
-    float scale_factor_up = 1.5f;
-    float scale_factor_down = 0.8f;
+    float scale_factor_up = 0.2f;
+    float scale_factor_down = 0.2f;
     for (size_t j = 0; j < 4; j++)
     {
         if (j == 0)
@@ -280,15 +280,19 @@ std::vector<cv::Mat> RandomForest::augmentImage(cv::Mat &inputImage)
             augmentations.push_back(flippedImage);
             /* Scale with factor 1.2 5 times bigger and five times small */
             std::cout << "Original Image size is " << flippedImage.size() << "\n";
-			for(int s = 1; s < 3; ++s) {
-				cv::resize(flippedImage, scaled_image, cv::Size(0,0), scale_factor_up*s,scale_factor_up*s, cv::INTER_LINEAR);
-				std::cout << "Scaled Image size with scale factor " << scale_factor_up*s <<" is: " << scaled_image.size() << "\n";
+			for(int s = 1; s < 5; ++s) {
+				cv::resize(flippedImage, scaled_image, cv::Size(0,0), 1 + (scale_factor_up*s),1 + (scale_factor_up*s), cv::INTER_LINEAR);
+//				std::cout << "Scaled Image size with scale factor " << scale_factor_up*s <<" is: " << scaled_image.size() << "\n";
 				augmentations.push_back(scaled_image);
+//				cv::imshow("Augmented image preview", scaled_image);
+//				cv::waitKey(0);
 			}
-			for(int s = 1; s < 3; ++s) {
-				cv::resize(flippedImage, scaled_image, cv::Size(0,0), scale_factor_down/s,scale_factor_down/s, cv::INTER_LINEAR);
-				std::cout << "Scaled Image size with scale factor " << scale_factor_down/s <<" is: " << scaled_image.size() << "\n";
+			for(int s = 1; s < 5; ++s) {
+				cv::resize(flippedImage, scaled_image, cv::Size(0,0), 1-(scale_factor_down*s),1-(scale_factor_down*s), cv::INTER_LINEAR);
+//				std::cout << "Scaled Image size with scale factor " << scale_factor_down/s <<" is: " << scaled_image.size() << "\n";
 				augmentations.push_back(scaled_image);
+//				cv::imshow("Augmented image preview", scaled_image);
+//				cv::waitKey(0);
 			}
         }
         currentImage = rotatedImage;

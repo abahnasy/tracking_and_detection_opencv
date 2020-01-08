@@ -12,7 +12,8 @@
 #include <iomanip>
 #include <sstream>
 #include <random>
-#include <opencv2/core/utils/filesystem.hpp>
+#include "ComputingLocation.h"
+
 
 using namespace cv;
 using namespace std;
@@ -68,7 +69,12 @@ cv::Mat resizeToBoundingBox(cv::Mat &inputImage, Size &winSize)
 void task1()
 {
     // Read image and display
-    string imagePath = "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task1/obj1000.jpg";
+#ifdef RECHNERHALLE
+	string imagePath = "/u/halle/bahnasya/home_at/Desktop/tracking_and_detection_opencv/openCV2/data/task1/obj1000.jpg";
+#else
+	string imagePath = "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task1/obj1000.jpg";
+#endif
+
     cout << imagePath << endl;
     Mat inputImage = imread(imagePath, cv::IMREAD_UNCHANGED);
     imshow("task1 - Input Image", inputImage);

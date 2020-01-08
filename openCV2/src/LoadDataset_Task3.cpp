@@ -8,6 +8,8 @@
 #include <vector>
 #include <sstream>
 
+#include "ComputingLocation.h"
+
 #  define DEBUG(x) std::cout << x << std::endl
 
 void load_dataset_task3 (
@@ -36,7 +38,12 @@ void load_dataset_task3 (
 		for (int iter_train = 0; iter_train < train_images_num.at(i); ++iter_train) {
 			// formulate the name of the image to be read
 			std::stringstream image_path;
+#ifdef RECHNERHALLE
+			image_path << "/u/halle/bahnasya/home_at/Desktop/tracking_and_detection_opencv/openCV2/data/task3/train" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << iter_train << ".jpg";
+#else
 			image_path << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task3/train" << "/" << std::setfill('0') << std::setw(2) << i <<"/" << std::setfill('0') << std::setw(4) << iter_train << ".jpg";
+#endif
+
 			// convert it to string
 			std::string image_path_str = image_path.str();
 			//DEBUG(image_path_str); /* Debugging */
@@ -58,7 +65,12 @@ void load_dataset_task3 (
 		for (int iter_test = 0; iter_test < test_images_num.at(i); ++iter_test) {
 			// formulate the name of the image to be read
 			std::stringstream image_path;
+#ifdef RECHNERHALLE
+			image_path << "/u/halle/bahnasya/home_at/Desktop/tracking_and_detection_opencv/openCV2/data/task3/test" << "/" << std::setfill('0') << std::setw(4) << iter_test << ".jpg";
+#else
 			image_path << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task3/test" << "/" << std::setfill('0') << std::setw(4) << iter_test << ".jpg";
+#endif
+
 			// convert it to string
 			std::string image_path_str = image_path.str();
 //			DEBUG(image_path_str); /* Debugging */
@@ -72,7 +84,12 @@ void load_dataset_task3 (
 
 			// construct the path of the current image
 			std::stringstream gtFilePath;
+#ifdef RECHNERHALLE
+			gtFilePath << "/u/halle/bahnasya/home_at/Desktop/tracking_and_detection_opencv/openCV2/data/task3/gt/" << std::setfill('0') << std::setw(4) << iter_test << ".gt.txt";
+#else
 			gtFilePath << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task3/gt/" << std::setfill('0') << std::setw(4) << iter_test << ".gt.txt";
+#endif
+
 			std::string gtFilePathStr = gtFilePath.str();
 
 	        std::fstream gtFile;

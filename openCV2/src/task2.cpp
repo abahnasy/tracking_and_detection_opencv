@@ -151,8 +151,8 @@ void testForest(){
 	vector<pair<int, cv::Mat>> trainingImagesLabelVector = dataset.at(0);
 
 	//create random forest
-	int treeCount = 40;
-	int maxDepth = 20;
+	int treeCount = 60;
+	int maxDepth = 30;
 	int CVFolds = 1; // Not implemented Error, set to 1
 	int minSampleCount = 2;
 	int maxCategories = 6;
@@ -160,7 +160,7 @@ void testForest(){
 	float subsetPercentage = 80.0f;
 	RandomForest *rf = new RandomForest(treeCount,  maxDepth,  CVFolds,  minSampleCount,  maxCategories);
 	//train random forest
-	rf->train(trainingImagesLabelVector,subsetPercentage, false);
+	rf->train(trainingImagesLabelVector,subsetPercentage, true);
 
 	vector<pair<int, cv::Mat>> testImagesLabelVector = dataset.at(1);
     float accuracy = 0;

@@ -8,7 +8,19 @@
 #include <opencv2/opencv.hpp>
 #include "RandomForest.h"
 #include "DataContainers.h"
+
+#include "ComputingLocation.h"
+
+#ifdef RECHNERHALLE
+// C++ program to create a directory in Linux
+#include <bits/stdc++.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#else
 #include <opencv2/core/utils/filesystem.hpp>
+#endif
+
 
 #  define DEBUG(x) std::cout << x << std::endl
 
@@ -76,7 +88,7 @@ std::vector<float> compute_metrics(std::vector<DetectedObject> predictionsNMSVec
 }
 
 
-std::vector<float> task3(float threshold) {
+std::vector<float> task3(float confidence_threshold) {
 
 	// load train dataset
 	// create random forest for 4 classes
@@ -87,7 +99,7 @@ std::vector<float> task3(float threshold) {
 	// loop over vector of predictions to extract the bounding boxes text values and write them in a log file
 	// print image with all bounding boxes in output folder
 
-	float NMS_CONFIDENCE_THRESHOLD = threshold;
+	float NMS_CONFIDENCE_THRESHOLD = confidence_threshold;
 	float NMS_MIN_IOU_THRESHOLD = 0.1f;
 	float NMS_MAX_IOU_THRESHOLD = 0.5f;
 
@@ -130,9 +142,27 @@ std::vector<float> task3(float threshold) {
 
 	// open a stream file
 	std::ostringstream s;
-	s << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task3/output/Trees-" << treeCount << "-augment_" << data_augmentation << "-strideX_" << cols_stride << "-strideY_" << rows_stride;
+
+#ifdef RECHNERHALLE
+	s << "data/task3/output/Trees-" << treeCount << "confidence_threshold" << NMS_CONFIDENCE_THRESHOLD << "-augment_" << data_augmentation << "-strideX_" << cols_stride << "-strideY_" << rows_stride << "/";;
+	std::string outputDir = s.str();
+	const char * c = outputDir.c_str();
+	if (mkdir(c, 0777) == -1)
+	        std::cerr << "Error :  " << strerror(errno) << std::endl;
+
+	    else
+	    	std::cout << "Directory created";
+#else
+	s << "/home/abahnasy/Desktop/tracking_and_detection_opencv/openCV2/data/task3/output/Trees-" << treeCount << "confidence_threshold" << NMS_CONFIDENCE_THRESHOLD << "-augment_" << data_augmentation << "-strideX_" << cols_stride << "-strideY_" << rows_stride << "/";
 	std::string outputDir = s.str();
 	cv::utils::fs::createDirectory(outputDir);
+#endif
+
+
+
+
+
+
 	std::ofstream predictionsFile(outputDir + "_predictions.txt");
 	if (!predictionsFile.is_open())
 	{
