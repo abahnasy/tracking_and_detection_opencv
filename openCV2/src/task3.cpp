@@ -18,10 +18,65 @@ void load_dataset_task3 (
 		);
 
 
+std::vector<float> compute_metrics(std::vector<DetectedObject> predictionsNMSVector,
+                            std::vector<DetectedObject> groundTruthPredictions)
+{
+    float tp = 0, fp = 0, fn = 0;
+    float matchThresholdIou = 0.5f;
+
+    for (auto &&myPrediction : predictionsNMSVector)
+    {
+        bool matchesWithAnyGroundTruth = false;
+        cv::Rect myRect = myPrediction.bounding_box;
+
+        for (auto &&groundTruth : groundTruthPredictions)
+        {
+            if (groundTruth.label != myPrediction.label)
+                continue;
+            cv::Rect gtRect = groundTruth.bounding_box;
+            float iouScore = ((myRect & gtRect).area() * 1.0f) / ((myRect | gtRect).area());
+            if (iouScore > matchThresholdIou)
+            {
+                matchesWithAnyGroundTruth = true;
+                break;
+            }
+        }
+        if (matchesWithAnyGroundTruth)
+            tp++;
+        else
+            fp++;
+    }
+
+    for (auto &&groundTruth : groundTruthPredictions)
+    {
+        bool isGtBboxMissed = true;
+        cv::Rect gtRect = groundTruth.bounding_box;
+        for (auto &&myPrediction : predictionsNMSVector)
+        {
+            if (groundTruth.label != myPrediction.label)
+                continue;
+            cv::Rect myRect = myPrediction.bounding_box;
+            float iouScore = ((myRect & gtRect).area() * 1.0f) / ((myRect | gtRect).area());
+            if (iouScore > matchThresholdIou)
+            {
+                isGtBboxMissed = false;
+                break;
+            }
+        }
+
+        if (isGtBboxMissed)
+            fn++;
+    }
+
+    std::vector<float> results;
+    results.push_back(tp);
+    results.push_back(fp);
+    results.push_back(fn);
+    return results;
+}
 
 
-
-void task3(void) {
+std::vector<float> task3(float threshold) {
 
 	// load train dataset
 	// create random forest for 4 classes
@@ -31,6 +86,10 @@ void task3(void) {
 	// run sliding window for every image and extract vector of predictions
 	// loop over vector of predictions to extract the bounding boxes text values and write them in a log file
 	// print image with all bounding boxes in output folder
+
+	float NMS_CONFIDENCE_THRESHOLD = threshold;
+	float NMS_MIN_IOU_THRESHOLD = 0.1f;
+	float NMS_MAX_IOU_THRESHOLD = 0.5f;
 
 	std::vector<std::vector<std::pair<int, cv::Mat>>> full_dataset;
 
@@ -75,12 +134,14 @@ void task3(void) {
 	std::string outputDir = s.str();
 	cv::utils::fs::createDirectory(outputDir);
 	std::ofstream predictionsFile(outputDir + "_predictions.txt");
-	    if (!predictionsFile.is_open())
-	    {
-	        std::cout << "Failed to open" << outputDir + "_predictions.txt" << std::endl;
-	        exit(-1);
-	    }
+	if (!predictionsFile.is_open())
+	{
+		std::cout << "Failed to open" << outputDir + "_predictions.txt" << std::endl;
+		exit(-1);
+	}
 
+	// metrics used to asses the overall performance across all images.
+	float tp = 0, fp = 0, fn = 0;
 	for(int i = 0; i <testImagesLabelVector.size(); ++i) {
 		std::cout << "Running sliding window on image # " << i << " of " << testImagesLabelVector.size() << "\n";
 		predictionsFile << i << std::endl; // Prediction file format: Starts with File number
@@ -155,9 +216,7 @@ void task3(void) {
 		cv::imwrite(gtFilePathStr, testImageGtClone);
 
 
-		float NMS_CONFIDENCE_THRESHOLD = 0.6f;
-		float NMS_MIN_IOU_THRESHOLD = 0.1f;
-		float NMS_MAX_IOU_THRESHOLD = 0.5f;
+
 
 
 		// Run NMS over the vector of predicted bounding boxes
@@ -187,10 +246,10 @@ void task3(void) {
 					cv::Rect &rect1 = prediction.bounding_box;
 					cv::Rect &rect2 = predicion_NMS.bounding_box;
 					float iouScore = ((rect1 & rect2).area() * 1.0f) / ((rect1 | rect2).area());
-					std::cout << "iou score is "  << iouScore << "\n";
+					//std::cout << "iou score is "  << iouScore << "\n";
 					if (iouScore > NMS_MAX_IOU_THRESHOLD) // Merge the two bounding boxes
 					{
-						std::cout <<"iou score passed the threshold check \n";
+						//std::cout <<"iou score passed the threshold check \n";
 						predicion_NMS.bounding_box = rect1 | rect2;
 						predicion_NMS.confidence = std::max(prediction.confidence, predicion_NMS.confidence);
 						similar_prediction_flag = true;
@@ -205,6 +264,8 @@ void task3(void) {
 					     }
 					     similar_prediction_flag = true;
 					     break;
+					 } else {
+						 // similar but iou score is below minimum
 					 }
 				}
 			}
@@ -222,8 +283,41 @@ void task3(void) {
         nmsOutputFilePath << outputDir << std::setfill('0') << std::setw(4) << i << "-NMSOutput" << "-Confidence-" << NMS_CONFIDENCE_THRESHOLD << ".png";
         std::string nmsOutputFilePathStr = nmsOutputFilePath.str();
         cv::imwrite(nmsOutputFilePathStr, testImageNmsClone);
+
+
+        std::vector<DetectedObject> groundTruthPredictions;
+		for (size_t j = 0; j < groundTruthBoundingBoxes.at(i).size(); j++)
+		{
+			DetectedObject ground_truth_predictions;
+			ground_truth_predictions.label = groundTruthBoundingBoxes.at(i).at(j).at(0);
+			ground_truth_predictions.bounding_box.x = groundTruthBoundingBoxes.at(i).at(j).at(1);
+			ground_truth_predictions.bounding_box.y = groundTruthBoundingBoxes.at(i).at(j).at(2);
+			ground_truth_predictions.bounding_box.height = groundTruthBoundingBoxes.at(i).at(j).at(3);
+			ground_truth_predictions.bounding_box.height -= ground_truth_predictions.bounding_box.x;
+			ground_truth_predictions.bounding_box.width = groundTruthBoundingBoxes.at(i).at(j).at(4);
+			ground_truth_predictions.bounding_box.width -= ground_truth_predictions.bounding_box.y;
+			groundTruthPredictions.push_back(ground_truth_predictions);
+		}
+
+		// function  used to  calculate PR values
+		std::vector<float> metrics = compute_metrics(predictions_per_image_NMS, groundTruthPredictions);
+		tp += metrics[0];
+		fp += metrics[1];
+		fn += metrics[2];
 	}
 	predictionsFile.close();
+
+	float precision = tp / (tp + fp);
+	float recall = tp / (tp + fn);
+	std::cout << "NMS_CONFIDENCE_THRESHOLD: " << NMS_CONFIDENCE_THRESHOLD << ", Precision: " << precision << ", Recall: " << recall << "\n";
+	std::vector<float> return_vector;
+	return_vector.push_back(precision);
+	return_vector.push_back(recall);
+
+	return return_vector;
+
+
+
 
 
 
