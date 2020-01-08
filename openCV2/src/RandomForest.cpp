@@ -92,7 +92,7 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 //	cv::Size padding(0, 0);
 
     std::vector<std::pair<int, cv::Mat>> augmentedTrainingImagesLabelVector;
-    augmentedTrainingImagesLabelVector.reserve(trainingImagesLabelVector.size() * 32);
+    // augmentedTrainingImagesLabelVector.reserve(trainingImagesLabelVector.size() * 32);
     if (data_augmentation)
     {
         for(auto&& trainingImagesLabelSample : trainingImagesLabelVector)
@@ -110,19 +110,21 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
     std::cout << "The number of received training images is " << trainingImagesLabelVector.size() << "\n";
 	std::cout << "Number of generated augmented dataset is " << augmentedTrainingImagesLabelVector.size() << "\n";
 
-	for (uint8_t i = 0; i < this->mTreeCount; ++i) {
+	for (int i = 0; i < this->mTreeCount; ++i) {
     	std::cout << "Training DTree no. " << i+1 << " of " << this->mTreeCount << " .....\n";
 
     	// generate Random subset of the main dataset
     	std::vector<std::pair<int, cv::Mat>> trainingImagesLabelSubsetVector =
     	            generateTrainingImagesLabelSubsetVector(augmentedTrainingImagesLabelVector,
     	                                                    subsetPercentage);
+
     	// compute HoG descriptors for the subset dataset
 
 	    cv::Mat feats, labels;
-	    for (size_t i = 0; i < trainingImagesLabelSubsetVector.size(); i++)
+	    DEBUG("Size of the subsampled augmented data "<<trainingImagesLabelSubsetVector.size());
+	    for (int j = 0; j < trainingImagesLabelSubsetVector.size(); ++j)
 	    {
-			cv::Mat inputImage = trainingImagesLabelSubsetVector.at(i).second;
+			cv::Mat inputImage = trainingImagesLabelSubsetVector.at(j).second;
 			cv::Mat resizedInputImage = resizeToBoundingBox(inputImage, this->winSize_);
 
 			// Compute Hog only of center crop of grayscale image
@@ -136,11 +138,12 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 //			std::cout << "Number of descriptors are: " << descriptors.size() << std::endl;
 			feats.push_back(cv::Mat(descriptors).clone().reshape(1, 1));
 //			std::cout << "New size of training features" << feats.size() << std::endl;
-			labels.push_back(trainingImagesLabelVector.at(i).first);
+			labels.push_back(trainingImagesLabelSubsetVector.at(j).first);
 //			std::cout << "New size of training labels" << labels.size() << std::endl;
 	    }
 
 
+	    DEBUG("Finished training");
 
 
 
@@ -213,7 +216,7 @@ std::vector<std::pair<int, cv::Mat>> RandomForest::generateTrainingImagesLabelSu
 	std::vector<std::pair<int, cv::Mat>> trainingImagesLabelSubsetVector;
 
 
-    for (uint8_t label = 0; label < mMaxCategories; ++label)
+    for (int label = 0; label < mMaxCategories; ++label)
 	{
 		// Create a subset vector for all the samples with class label.
 		std::vector<std::pair<int, cv::Mat>> temp;
@@ -228,30 +231,35 @@ std::vector<std::pair<int, cv::Mat>> RandomForest::generateTrainingImagesLabelSu
 
 		// Filter numOfElements elements from temp and append to trainingImagesLabelSubsetVector
 		std::vector<int> randomUniqueIndices = getRandomUniqueIndices(0, temp.size(), numOfElements);
+		//DEBUG("Print the range, from " << 0 << temp.size() << "number of elements " << numOfElements);
 
 
-
-		for (uint8_t j = 0; j < randomUniqueIndices.size(); ++j)
+		for (int j = 0; j < randomUniqueIndices.size(); ++j)
 		{
+
 			std::pair<int, cv::Mat> subsetSample = temp.at(randomUniqueIndices.at(j));
 			trainingImagesLabelSubsetVector.push_back(subsetSample);
 		}
 
+
 		// Bagging the rest of samples
 		int missing = temp.size() - randomUniqueIndices.size();
+
+
 		// this should work only if subsampling is above 50 percent
 		std::vector<int> uniqueFromSelected = getRandomUniqueIndices(0, trainingImagesLabelSubsetVector.size(), missing);
+		//DEBUG("Print the missing range, from " << 0 << " to " << trainingImagesLabelSubsetVector.size() << " number of elements " << missing);
 
-		for (uint8_t j = 0; j < uniqueFromSelected.size(); ++j)
+		for (int j = 0; j < uniqueFromSelected.size(); ++j)
 		{
 			std::pair<int, cv::Mat> subsetSample = trainingImagesLabelSubsetVector.at(uniqueFromSelected.at(j));
 			trainingImagesLabelSubsetVector.push_back(subsetSample);
 		}
-//
+
 //		std::cout << "unique size: " << trainingImagesLabelSubsetVector.size() << "\n";
 	}
 
-
+//DEBUG("I reach the end ");
 	return trainingImagesLabelSubsetVector;
 }
 
@@ -280,14 +288,14 @@ std::vector<cv::Mat> RandomForest::augmentImage(cv::Mat &inputImage)
             augmentations.push_back(flippedImage);
             /* Scale with factor 1.2 5 times bigger and five times small */
 //            std::cout << "Original Image size is " << flippedImage.size() << "\n";
-			for(int s = 1; s < 5; ++s) {
+			for(int s = 1; s < 1; ++s) {
 				cv::resize(flippedImage, scaled_image, cv::Size(0,0), 1 + (scale_factor_up*s),1 + (scale_factor_up*s), cv::INTER_LINEAR);
 //				std::cout << "Scaled Image size with scale factor " << scale_factor_up*s <<" is: " << scaled_image.size() << "\n";
 				augmentations.push_back(scaled_image);
 //				cv::imshow("Augmented image preview", scaled_image);
 //				cv::waitKey(0);
 			}
-			for(int s = 1; s < 5; ++s) {
+			for(int s = 1; s < 1; ++s) {
 				cv::resize(flippedImage, scaled_image, cv::Size(0,0), 1-(scale_factor_down*s),1-(scale_factor_down*s), cv::INTER_LINEAR);
 //				std::cout << "Scaled Image size with scale factor " << scale_factor_down/s <<" is: " << scaled_image.size() << "\n";
 				augmentations.push_back(scaled_image);

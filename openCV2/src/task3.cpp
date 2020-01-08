@@ -255,21 +255,23 @@ std::vector<float> task3(float confidence_threshold) {
 		std::vector<DetectedObject> predictions_per_image_NMS;
 //		predictions_per_image_NMS.reserve(25);
 
+//		 erase boxes with confidence below the threshold
+		std::cout << "Erase the predictions which have confidence below the threshold value for image: " << i << "\n";
+		std::cout <<"Total predictions before thresholding are " << predictions_per_image.size() << "\n";
+		std::vector<DetectedObject>::iterator iter;
+		for (iter = predictions_per_image.begin(); iter != predictions_per_image.end(); ) {
+			if (iter->confidence < NMS_CONFIDENCE_THRESHOLD)
+				iter = predictions_per_image.erase(iter);
+			else
+				++iter;
+		}
+		std::cout <<"Total predictions after thresholding are " << predictions_per_image.size() << "\n";
+
 		std::cout <<"========== The vector size befor nms: " << predictions_per_image.size() << "\n";
 		predictions_per_image_NMS = non_maximum_suppresion(testImageNmsClone,  predictions_per_image, NMS_MAX_IOU_THRESHOLD);
 		std::cout <<"========== The vector size after nms: " << predictions_per_image_NMS.size() << "\n";
 //
-//		// erase boxes with confidence below the threshold
-//		std::cout << "Erase the predictions which have confidence below the threshold value for image: " << i << "\n";
-//		std::cout <<"Total predictions before thresholding are " << predictions_per_image.size() << "\n";
-//		std::vector<DetectedObject>::iterator iter;
-//		for (iter = predictions_per_image.begin(); iter != predictions_per_image.end(); ) {
-//			if (iter->confidence < NMS_CONFIDENCE_THRESHOLD)
-//				iter = predictions_per_image.erase(iter);
-//			else
-//				++iter;
-//		}
-//		std::cout <<"Total predictions after thresholding are " << predictions_per_image.size() << "\n";
+//
 //		std::cout << "Calculating the IOU value for remaining vectors" << "\n";
 //		for (auto &&prediction : predictions_per_image){
 //			bool similar_prediction_flag = false;
