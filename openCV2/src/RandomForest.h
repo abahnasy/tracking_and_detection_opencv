@@ -25,7 +25,7 @@ public:
     void setCVFolds(int cvFols);
     void setMinSampleCount(int minSampleCount);
     void setMaxCategories(int maxCategories);
-    void train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector,float subsetPercentage);
+    void train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector,float subsetPercentage, bool data_augmentaion = false);
     DetectedObject predict(cv::Mat &testImage);
 private:
 	int mTreeCount;
@@ -46,6 +46,7 @@ private:
 
     std::vector<int> getRandomUniqueIndices(int start, int end, int numOfSamples);
     std::vector<std::pair<int, cv::Mat>> generateTrainingImagesLabelSubsetVector(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector, float subsetPercentage);
+    std::vector<cv::Mat> augmentImage(cv::Mat &image);
 };
 
 #endif //RF_RANDOMFOREST_H

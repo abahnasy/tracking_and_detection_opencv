@@ -83,7 +83,7 @@ void RandomForest::setMaxCategories(int maxCategories)
 
 
 
-void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector,float subsetPercentage)
+void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLabelVector,float subsetPercentage, bool data_augmentation)
 {
 	// Compute Hog Features for all the training images
 //	cv::Size winSize(128, 128);
@@ -91,6 +91,24 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 //	cv::Size winStride(8, 8);
 //	cv::Size padding(0, 0);
 
+    std::vector<std::pair<int, cv::Mat>> augmentedTrainingImagesLabelVector;
+    augmentedTrainingImagesLabelVector.reserve(trainingImagesLabelVector.size() * 8);
+    if (data_augmentation)
+    {
+        for(auto&& trainingImagesLabelSample : trainingImagesLabelVector)
+        {
+            std::vector<cv::Mat> augmentedImages = augmentImage(trainingImagesLabelSample.second);
+            for (auto &&augmentedImage : augmentedImages)
+            {
+                augmentedTrainingImagesLabelVector.push_back(std::pair<int, cv::Mat>(trainingImagesLabelSample.first, augmentedImage));
+            }
+        }
+    } else {
+        augmentedTrainingImagesLabelVector = trainingImagesLabelVector;
+    }
+
+    std::cout << "The number of received training images is " << trainingImagesLabelVector.size() << "\n";
+	std::cout << "Number of generated augmented dataset is " << augmentedTrainingImagesLabelVector.size() << "\n";
 
 	for (uint8_t i = 0; i < this->mTreeCount; ++i) {
     	std::cout << "Training DTree no. " << i+1 << " of " << this->mTreeCount << " .....\n";
@@ -121,6 +139,9 @@ void RandomForest::train(std::vector<std::pair<int, cv::Mat>> &trainingImagesLab
 			labels.push_back(trainingImagesLabelVector.at(i).first);
 //			std::cout << "New size of training labels" << labels.size() << std::endl;
 	    }
+
+
+
 
 
 
@@ -232,5 +253,47 @@ std::vector<std::pair<int, cv::Mat>> RandomForest::generateTrainingImagesLabelSu
 
 
 	return trainingImagesLabelSubsetVector;
+}
+
+std::vector<cv::Mat> RandomForest::augmentImage(cv::Mat &inputImage)
+{
+    std::vector<cv::Mat> augmentations;
+    cv::Mat currentImage = inputImage;
+    cv::Mat rotatedImage, flippedImage, scaled_image;
+    float scale_factor_up = 1.5f;
+    float scale_factor_down = 0.8f;
+    for (size_t j = 0; j < 4; j++)
+    {
+        if (j == 0)
+        {
+            rotatedImage = currentImage;
+        }
+        else
+        {
+            cv::rotate(currentImage, rotatedImage, cv::ROTATE_90_CLOCKWISE);
+            augmentations.push_back(rotatedImage);
+        }
+
+        for (int i = 0; i <= 1; i++)
+        {
+            cv::flip(rotatedImage, flippedImage, i);
+            augmentations.push_back(flippedImage);
+            /* Scale with factor 1.2 5 times bigger and five times small */
+            std::cout << "Original Image size is " << flippedImage.size() << "\n";
+			for(int s = 1; s < 3; ++s) {
+				cv::resize(flippedImage, scaled_image, cv::Size(0,0), scale_factor_up*s,scale_factor_up*s, cv::INTER_LINEAR);
+				std::cout << "Scaled Image size with scale factor " << scale_factor_up*s <<" is: " << scaled_image.size() << "\n";
+				augmentations.push_back(scaled_image);
+			}
+			for(int s = 1; s < 3; ++s) {
+				cv::resize(flippedImage, scaled_image, cv::Size(0,0), scale_factor_down/s,scale_factor_down/s, cv::INTER_LINEAR);
+				std::cout << "Scaled Image size with scale factor " << scale_factor_down/s <<" is: " << scaled_image.size() << "\n";
+				augmentations.push_back(scaled_image);
+			}
+        }
+        currentImage = rotatedImage;
+    }
+
+    return augmentations;
 }
 

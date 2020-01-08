@@ -50,7 +50,7 @@ void testDTrees() {
     // Create the model
 	cv::Ptr<cv::ml::DTrees> model = cv::ml::DTrees::create();
 	model->setCVFolds(0); // set num cross validation folds - Not implemented in OpenCV
-	// model->setMaxCategories();  // set max number of categories
+	model->setMaxCategories(6);  // set max number of categories
 	model->setMaxDepth(5);       // set max tree depth
 	model->setMinSampleCount(2); // set min sample count
 	cout << "Number of cross validation folds are: " << model->getCVFolds() << endl;
@@ -62,7 +62,7 @@ void testDTrees() {
 	// Compute Hog Features for all the training images
 	cv::Size winSize(128, 128);
 	cv::HOGDescriptor hog = createHogDescriptor(winSize);
-	cv::Size winStride(8, 8);
+	cv::Size winStride(16, 16);
 	cv::Size padding(0, 0);
 
 
@@ -81,10 +81,12 @@ void testDTrees() {
         // Store the features and labels for model training.
          cout << "=====================================" << endl;
          cout << "Number of descriptors are: " << descriptors.size() << endl;
+         cv::Mat new_vector_after_reshape =  cv::Mat(descriptors).clone().reshape(1, 1);
         feats.push_back(cv::Mat(descriptors).clone().reshape(1, 1));
-         cout << "New size of training features" << feats.size() << endl;
+        cout << "Decision Tree Vector" << feats.size() << endl;
+         cout << "New size of training features" << new_vector_after_reshape.size() << endl;
         labels.push_back(trainingImagesLabelVector.at(i).first);
-         cout << "New size of training labels" << labels.size() << endl;
+//         cout << "New size of training labels" << labels.size() << endl;
     }
 
 	cv::Ptr<cv::ml::TrainData> trainData = cv::ml::TrainData::create(feats, cv::ml::ROW_SAMPLE, labels);
@@ -149,7 +151,7 @@ void testForest(){
 	vector<pair<int, cv::Mat>> trainingImagesLabelVector = dataset.at(0);
 
 	//create random forest
-	int treeCount = 120;
+	int treeCount = 40;
 	int maxDepth = 20;
 	int CVFolds = 1; // Not implemented Error, set to 1
 	int minSampleCount = 2;
@@ -158,25 +160,34 @@ void testForest(){
 	float subsetPercentage = 80.0f;
 	RandomForest *rf = new RandomForest(treeCount,  maxDepth,  CVFolds,  minSampleCount,  maxCategories);
 	//train random forest
-	rf->train(trainingImagesLabelVector,subsetPercentage);
+	rf->train(trainingImagesLabelVector,subsetPercentage, false);
 
 	vector<pair<int, cv::Mat>> testImagesLabelVector = dataset.at(1);
     float accuracy = 0;
     float accuracyPerClass[maxCategories] = {0};
+    float ground_truth_class [maxCategories] = {0};
     for (uint8_t i = 0; i < testImagesLabelVector.size(); ++i)
     {
         cv::Mat testImage = testImagesLabelVector.at(i).second;
+        ground_truth_class[testImagesLabelVector.at(i).first]++;
         DetectedObject prediction = rf->predict(testImage);
         if (testImagesLabelVector.at(i).first == prediction.label)
         {
             accuracy += 1;
             accuracyPerClass[prediction.label] += 1;
         }
+
     }
 
+    for (int i = 0; i < maxCategories; ++i) {
+    	float res = accuracyPerClass[i] / ground_truth_class[i];
+    	cout << "The accuracy of class " << i << " is " << res << "\n";
+    }
     cout << "==================================================" << endl;
     cout << "Accuracy is " << accuracy/testImagesLabelVector.size() << endl;
     cout << "==================================================" << endl;
+
+
 
 	//predict random forest
 

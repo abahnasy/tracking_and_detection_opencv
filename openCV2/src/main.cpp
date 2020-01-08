@@ -21,12 +21,12 @@ int main()
      //cv::destroyAllWindows();
 
      // Task 2
-     //testDTrees();
-//     testForest();
+//     testDTrees();
+   //  testForest();
 
 // Task 3
-	task3();
-    cv::destroyAllWindows();
+   task3();
+//    cv::destroyAllWindows();
 
 
 
